@@ -21,7 +21,13 @@ io.on('connection', (socket)=>{
   socket.on('join', (room, )=>{
 
   });
-  socket.on('disconnect')
+  socket.on('disconnect', ()=>{
+
+  });
+  socket.on('move', (x, y, username)=>{
+    console.log(`${username} move to (${x}, ${y})`);
+    io.emit('move', x, y, username);
+  });
 });
 
 
