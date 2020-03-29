@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+const PORT = process.anv.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
