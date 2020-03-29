@@ -1,4 +1,6 @@
 alert('start');
+let canvasDoc = document.getElementById('canvas');
+let players = {};
 
 class Player{
   constructor(canvas, username){
@@ -21,6 +23,14 @@ class Player{
     this.context.clearRect(0, 0, canvas.width, canvas.height);
     this.drawBackground();
     this.drawPlayer(this.x, this.y, username, this.username == username);
+    this.drawPlayers();
+  };
+
+  drawPlayers = ()=>{
+    for(let a in players){
+      let b = players[a];
+      this.drawPlayer(b[1], b[2], b[0], false);
+    }
   };
 
   drawBackground = ()=>{
@@ -60,17 +70,47 @@ class Player{
 
 
 const socket = io();
-let player = new Player(document.getElementById('canvas'), "chamwhy");
+let player = new Player(document.getElementById('canvas'), Math.floor(Math.random() * 10));
 let speed = 3;
 let interval;
+let myid = "";
 
-socket.on('connection', ()=>{
+let resizeWindow = ()=>{
+  if(window.innerWidth * 9/16 < window.innerHeight){
+    canvasDoc.width = window.innerWidth;
+    canvasDoc.height = window.innerWidth * 9/16;
+  }else{
+    canvasDoc.height = window.innerHeight;
+    canvasDoc.width = window.innerHeight * 16/9;
+  }
+}
+
+resizeWindow();
+
+window.onresize = ()=>{
+  console.log('resize');
+  resizeWindow();
+}
+socket.on('sendId', (id)=>{
+  console.log(id);
+  myid = id;
+  player.username = id;
+});
+socket.on('connect', ()=>{
   console.log('connected');
+  socket.emit('login game', null);
 });
 
-socket.on('move', (x, y, username)=>{
-  console.log(`${username} move to (${x}, ${y})`);
-  player.drawPlayer(x, y, username);
+socket.on('is it work', (bool)=>{
+  console.log(bool);
+});
+
+
+socket.on('move', (x, y, username, id)=>{
+  if(myid != id){
+    console.log(`${username} move to (${x}, ${y})`);
+    players[username] = [username, x, y];
+  }
 });
 
 let keyDownHd = (e)=>{
@@ -111,7 +151,7 @@ let start = ()=>{
       socket.emit('move', player.x, player.y, player.username);
     }
     player.render(player.x, player.y, player.username);
-  }, 10);
+  }, 5);
 }
 let stop = ()=>{
   clearInterval(interval);

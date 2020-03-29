@@ -17,6 +17,7 @@ app.get('/', (req, res)=>{
 io.on('connection', (socket)=>{
   socket.on('connect', ()=>{
     console.log('a user is connected');
+    socket.emit('is it work', true);
   });
   socket.on('join', (room, )=>{
 
@@ -24,9 +25,14 @@ io.on('connection', (socket)=>{
   socket.on('disconnect', ()=>{
 
   });
+  socket.on('login game', (e)=>{
+    console.log("login id : " + socket.id);
+    socket.emit('sendId', socket.id);
+  });
+
   socket.on('move', (x, y, username)=>{
     console.log(`${username} move to (${x}, ${y})`);
-    io.emit('move', x, y, username);
+    io.emit('move', x, y, username, socket.id);
   });
 });
 
